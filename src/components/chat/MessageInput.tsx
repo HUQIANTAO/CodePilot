@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback, useEffect, useMemo, type KeyboardEvent, type FormEvent } from 'react';
+import { memo, useRef, useState, useCallback, useEffect, useMemo, type KeyboardEvent, type FormEvent } from 'react';
 import { CodePilotIcon } from "@/components/ui/semantic-icon";
 import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/i18n';
@@ -174,7 +174,7 @@ async function fileResponseToAttachment(
   };
 }
 
-export function MessageInput({
+export const MessageInput = memo(function MessageInput({
   onSend,
   onCommand,
   onStop,
@@ -1171,4 +1171,4 @@ export function MessageInput({
 
     </div>
   );
-}
+});

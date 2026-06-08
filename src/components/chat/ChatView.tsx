@@ -244,6 +244,7 @@ export function ChatView({ sessionId, initialMessages = [], initialHasMore = fal
     resolvedProviderId,
     resolvedModel,
     providerWasFilteredOut,
+    providerGroups,
   } = useProviderModels(currentProviderId, currentModel, sessionRuntimeParam);
 
   // Phase 2 Step 3b — was: silently set state + PATCH the session row
@@ -320,7 +321,15 @@ export function ChatView({ sessionId, initialMessages = [], initialHasMore = fal
   // Resolve upstream model ID for the current model/provider so both the
   // context indicator and Run Checkpoint can disambiguate alias windows
   // (first-party opus = 1M vs Bedrock/Vertex opus = 200K).
-  const [currentModelUpstream, setCurrentModelUpstream] = useState<string | undefined>(undefined);
+  // Derived from providerGroups already fetched by useProviderModels —
+  // no duplicate network request needed (see useMemo below).
+  const currentModelUpstream = useMemo(() => {
+    const pid = currentProviderId || 'env';
+    const group = providerGroups.find((g) => g.provider_id === pid);
+    if (!group) return undefined;
+    const model = findModelOption(group.models, currentModel);
+    return model?.upstreamModelId;
+  }, [currentProviderId, currentModel, providerGroups]);
 
   // Run Checkpoint signals — session-scoped only.
   //
@@ -390,26 +399,7 @@ export function ChatView({ sessionId, initialMessages = [], initialHasMore = fal
     return () => controller.abort();
   }, [currentProviderId]);
 
-  // /api/providers/models already returns upstreamModelId per model on the
-  // returned groups.
-  useEffect(() => {
-    const pid = currentProviderId || 'env';
-    const controller = new AbortController();
-    fetch('/api/providers/models', { signal: controller.signal })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (controller.signal.aborted) return;
-        const group = data?.groups?.find((g: { provider_id: string }) => g.provider_id === pid);
-        // Canonical-aware (tech-debt #37): currentModel may be a canonical id
-        // (`claude-opus-4-7`) while the rows are aliases (`opus`) — match by
-        // either so the context-window indicator gets the right upstream.
-        const models = (group?.models ?? []) as Array<{ value: string; upstreamModelId?: string }>;
-        const model = findModelOption(models, currentModel);
-        setCurrentModelUpstream(model?.upstreamModelId);
-      })
-      .catch(() => {});
-    return () => controller.abort();
-  }, [currentProviderId, currentModel]);
+  useEffect(() => { if (initialPermissionProfile) setPermissionProfile(initialPermissionProfile); }, [initialPermissionProfile]);
   useEffect(() => { if (initialPermissionProfile) setPermissionProfile(initialPermissionProfile); }, [initialPermissionProfile]);
 
   // Restore session-scoped last-generated images from sessionStorage
