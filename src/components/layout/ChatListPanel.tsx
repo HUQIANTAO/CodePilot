@@ -40,27 +40,36 @@ import {
 import type { ChatSession } from "@/types";
 
 // ──────────────────────────────────────────────────────────────────────
-// Sidebar 排版标准 — 2026-06-09 v2
+// Sidebar 排版标准 — 2026-06-09 v3
 //
 // 层级  元素                              height  radius     bg(选中/hover)              备注
 // ────  ────────────────────────────────  ──────  ────────  ─────────────────────────  ─────
-// L1    顶部主操作(新对话/搜索/导航/设置)   h-7     rounded-md  bg-sidebar-accent         28px 行高
+// L1    顶部主操作(新对话/搜索/导航/设置)   h-7     rounded-md  bg-sidebar-accent         28px, cursor-pointer
 // L2    节标题(项目 / 助理)               h-6     rounded-md  hover:bg-sidebar-accent/60 24px, 无 active 态
-// L3    列表项(项目文件夹 / 会话 / +)     h-6     rounded-md  bg-sidebar-accent         24px 行高
+// L3    列表项(项目文件夹 / 会话 / +)     h-7     rounded-md  bg-sidebar-accent         28px 行高
 //
 // 纵向间距规则:
-//   同组 L1↔L1         : gap-0.5 (2px)  — L1 是方形操作按钮, 2px 即可区分
-//   同组 L3↔L3         : gap-1   (4px)  — rounded-md=6px 圆角在 2px 间隙会重叠 1.5px;
-//                                         4px 是数学最短安全间距 (6×0.293×2=3.51 < 4)
+//   同组 L1↔L1         : gap-0.5 (2px)  — L1 是方形操作按钮, 2px 即可
+//   同组 L3↔L3         : gap-1   (4px)  — rounded-md=6px 需 ≥3.51px; 4px 安全 + 层级清晰
 //   L2 节标题 ↔ 首 L3  : pt-1    (4px)  — 与 L3↔L3 统一
-//   项目 header ↔ 首 session: pt-1 (4px) — 同 L3↔L3 标准 (v1 的 pt-0.5 导致重叠)
-//   节之间             : section wrapper 的 pt-1.5 / pb-0.5 (6 / 2px)
+//   项目 header ↔ 首 session: pt-1 (4px) — 同 L3↔L3 标准, 修复 v1 重叠
+//   节之间             : section wrapper 的 pt-2 / pb-1 (8 / 4px)
 //
-// 为什么:
-//   - 旧标准 h-8 + gap-1.5 = 38px 节奏, 太松
-//   - v1 h-7 + gap-0.5 = 30px, 但 rounded-md 圆角在边缘重叠 1.5px → 项目↔首会话重叠 bug
-//   - v2 h-6 + gap-1   = 28px, 节拍 -7% vs v1 / -26% vs 旧, 圆角数学上不重叠
-//   - L2 比 L1/L3 矮一档 (24 vs 28) → 高度差建立"标题 vs 列表项"层级
+// 为什么 v3:
+//   - v2 h-6 + gap-1 = 28px 太紧太矮, L2 和 L3 都是 24px → 无层级差
+//   - v3 h-7 + gap-1 = 32px: L2(24) vs L3(28) 高度差 4px 建层级;
+//     L3 节拍 32px 居中 — VS Code(~22) < CodePilot(32) < ChatGPT(~40)
+//   - 旧 h-8+gap-1.5=38px → v3 h-7+gap-1=32px, -16% 仍紧凑但层级分明
+//
+// 同类产品参考:
+//   VS Code explorer: h~22px, gap~0        — IDE 极密, 缩进显层级
+//   ChatGPT sidebar:  h~36px, gap~4px      — 聊天气泡风格, 宽松
+//   Apple HIG (macOS): h~28-32px           — 系统标准行高区间
+//   Linear sidebar:   h~32px, gap~4px      — 项目列表, 与 v3 最接近
+//   Cursor chat:      h~28-32px, gap~4px   — 同品类直接对标
+//
+//   CodePilot v3 取 32px: 聊天型工具偏松、编码型工具偏紧的中间值
+//
 //   - 改尺寸必须同步改这个表; 改这个表必须同步改尺寸
 // ──────────────────────────────────────────────────────────────────────
 
@@ -476,7 +485,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer"
             disabled={creatingChat}
             onClick={handleNewChat}
           >
@@ -488,7 +497,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer"
             onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
           >
             <CodePilotIcon name="search" size="md" className="text-inherit" aria-hidden />
@@ -506,7 +515,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] ${
+                  className={`group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer ${
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "text-sidebar-foreground font-normal"
@@ -535,7 +544,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
 
           {/* ─── 项目 section ─── */}
           <div
-            className="px-2 pt-1.5 pb-0.5"
+            className="px-2 pt-2 pb-1"
           >
             {/* Section header — chevron always visible (was hover-revealed
                 and "太不显眼"); button itself takes a hover background
@@ -573,7 +582,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                     <button
                       type="button"
                       onClick={() => openFolderPicker()}
-                      className="group flex items-center gap-2 rounded-md px-3 h-6 cursor-pointer select-none transition-colors hover:bg-sidebar-accent"
+                      className="group flex items-center gap-2 rounded-md px-3 h-7 cursor-pointer select-none transition-colors hover:bg-sidebar-accent"
                     >
                       <CodePilotIcon name="folder_add" size="md" className="shrink-0 text-muted-foreground" aria-hidden />
                       <span className="flex-1 truncate text-left text-[13px] font-normal text-sidebar-foreground">
@@ -735,7 +744,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
 
             return (
               <div
-                className="px-2 pt-0.5 pb-1"
+                className="px-2 pt-1 pb-1"
               >
                 <div className="flex w-full items-center gap-1 px-3 h-6 rounded-md transition-colors hover:bg-sidebar-accent/60">
                   <button
@@ -845,7 +854,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] ${
+            className={`w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer ${
               pathname.startsWith("/settings")
                 ? "bg-accent text-accent-foreground font-medium"
                 : "text-sidebar-foreground font-normal"
