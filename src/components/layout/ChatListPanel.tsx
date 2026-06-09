@@ -485,7 +485,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer active:!translate-y-0"
             disabled={creatingChat}
             onClick={handleNewChat}
           >
@@ -497,7 +497,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer active:!translate-y-0"
             onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
           >
             <CodePilotIcon name="search" size="md" className="text-inherit" aria-hidden />
@@ -515,7 +515,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer ${
+                  className={`group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer active:!translate-y-0 ${
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "text-sidebar-foreground font-normal"
@@ -854,7 +854,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer ${
+            className={`w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer active:!translate-y-0 ${
               pathname.startsWith("/settings")
                 ? "bg-accent text-accent-foreground font-medium"
                 : "text-sidebar-foreground font-normal"
