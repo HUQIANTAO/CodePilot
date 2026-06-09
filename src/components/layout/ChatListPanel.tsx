@@ -92,12 +92,51 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
       .catch(() => {});
   }, [sessions.length]);
 
-  /** Read current model + provider_id from localStorage for new session creation */
-  const getCurrentModelAndProvider = useCallback(() => {
-    const model = typeof window !== 'undefined' ? localStorage.getItem('codepilot:last-model') || '' : '';
-    const provider_id = typeof window !== 'undefined' ? localStorage.getItem('codepilot:last-provider-id') || '' : '';
-    return { model, provider_id };
+  /**
+   * Resolved global default model for new session creation.
+   *
+   * BUG FIX (2026-06-09): Previously getCurrentModelAndProvider() read
+   * model/provider_id exclusively from localStorage (codepilot:last-model).
+   * That value is only updated when the user manually picks a model in
+   * the dropdown or when /chat/page's checkProvider effect fires — both
+   * require the user to visit the chat page first. When the user changes
+   * their global default in Settings and immediately clicks "New Chat" in
+   * the sidebar, the localStorage still holds the OLD model, so the new
+   * session is permanently stamped with the wrong model.
+   *
+   * Fix: fetch the global default pair from the server on mount and use
+   * it as the primary source of truth for new-session creation. Fall back
+   * to localStorage only when the server fetch hasn't completed or fails.
+   *
+   * @see resolveNewChatDefault in src/lib/runtime/effective.ts — the
+   *      /chat page uses this same global-default-first chain.
+   * @see resolveSessionModel in src/lib/resolve-session-model.ts —
+   *      once a session has a non-empty model stored, it's returned as-is
+   *      without cross-checking the global default.
+   */
+  const [globalDefaultModel, setGlobalDefaultModel] = useState('');
+  const [globalDefaultProvider, setGlobalDefaultProvider] = useState('');
+
+  useEffect(() => {
+    fetch('/api/providers/options?providerId=__global__')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.options?.default_model) {
+          setGlobalDefaultModel(data.options.default_model);
+          setGlobalDefaultProvider(data.options.default_model_provider || '');
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  /** Read current model + provider_id — global default first, localStorage fallback */
+  const getCurrentModelAndProvider = useCallback(() => {
+    const model = globalDefaultModel
+      || (typeof window !== 'undefined' ? localStorage.getItem('codepilot:last-model') || '' : '');
+    const provider_id = globalDefaultProvider
+      || (typeof window !== 'undefined' ? localStorage.getItem('codepilot:last-provider-id') || '' : '');
+    return { model, provider_id };
+  }, [globalDefaultModel, globalDefaultProvider]);
 
   const handleFolderSelect = useCallback(async (path: string) => {
     try {
