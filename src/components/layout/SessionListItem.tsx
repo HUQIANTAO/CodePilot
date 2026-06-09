@@ -72,7 +72,7 @@ export function SessionListItem({
       <Link
         href={`/chat/${session.id}`}
         className={cn(
-          "flex items-center gap-2 rounded-xl px-3 h-8 transition-all duration-150 min-w-0",
+          "flex items-center gap-2 rounded-md px-3 h-7 transition-all duration-150 min-w-0",
           isWorkspace
             ? isActive
               ? "bg-primary/[0.12] text-sidebar-accent-foreground"

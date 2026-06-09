@@ -39,6 +39,18 @@ import {
 } from "./chat-list-utils";
 import type { ChatSession } from "@/types";
 
+// Sidebar L1/L2/L3 排版标准
+//
+// 层级  元素                              height  radius     bg(选中/hover)
+// ────  ────────────────────────────────  ──────  ────────  ─────────────────────────
+// L1    顶部主操作(新对话/搜索/导航/设置)   h-7     rounded-md  bg-sidebar-accent
+// L2    节标题(项目 / 助理)               h-6     rounded-md  hover:bg-sidebar-accent/60
+// L3    列表项(项目文件夹 / 会话)         h-7     rounded-md  bg-sidebar-accent
+//
+//   同组 L1↔L1 : gap-0.5 (2px)    同组 L3↔L3 : gap-1 (4px)
+//   L2 节标题 → 首 L3 : pt-1       项目 header → 首 session : pt-1
+//   节之间 : section wrapper pt-2 / pb-1
+
 interface ChatListPanelProps {
   open: boolean;
   hasUpdate?: boolean;
@@ -451,7 +463,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-9 px-3 rounded-xl text-[13px] font-normal text-sidebar-foreground"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer active:!translate-y-0"
             disabled={creatingChat}
             onClick={handleNewChat}
           >
@@ -463,7 +475,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className="group w-full justify-start gap-2 h-9 px-3 rounded-xl text-[13px] font-normal text-sidebar-foreground"
+            className="group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] font-normal text-sidebar-foreground cursor-pointer active:!translate-y-0"
             onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
           >
             <CodePilotIcon name="search" size="md" className="text-inherit" aria-hidden />
@@ -481,7 +493,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`group w-full justify-start gap-2 h-9 px-3 rounded-xl text-[13px] ${
+                  className={`group w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer active:!translate-y-0 ${
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "text-sidebar-foreground font-normal"
@@ -498,7 +510,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
 
       {/* Sectioned list: 项目 + 助理 (Codex-style) */}
       <ScrollArea className="flex-1 min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block">
-        <div className="flex flex-col pb-3">
+        <div className="flex flex-col pb-2">
 
           {/* Assistant promo card for unconfigured users */}
           {assistantSummary && !assistantSummary.configured && !promoDismissed && (
@@ -520,7 +532,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
               type="button"
               onClick={() => setProjectsCollapsed(c => !c)}
               className={cn(
-                "flex w-full items-center gap-1 px-3 h-7 cursor-pointer select-none rounded-xl",
+                "flex w-full items-center gap-1 px-3 h-6 cursor-pointer select-none rounded-md",
                 "transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
@@ -543,12 +555,12 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-1">
                     {/* Fixed top item: 新建项目 */}
                     <button
                       type="button"
                       onClick={() => openFolderPicker()}
-                      className="group flex items-center gap-2 rounded-xl px-3 h-8 cursor-pointer select-none transition-colors hover:bg-sidebar-accent"
+                      className="group flex items-center gap-2 rounded-md px-3 h-7 cursor-pointer select-none transition-colors hover:bg-sidebar-accent"
                     >
                       <CodePilotIcon name="folder_add" size="md" className="shrink-0 text-muted-foreground" aria-hidden />
                       <span className="flex-1 truncate text-left text-[13px] font-normal text-sidebar-foreground">
@@ -614,8 +626,9 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2, ease: 'easeOut' }}
                                 style={{ overflow: 'hidden' }}
+                                className="pt-1"
                               >
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-1">
                                   {visibleSessions.map((session) => {
                                     const isActive = pathname === `/chat/${session.id}`;
                                     const canSplit = !isActive && !isInSplit(session.id);
@@ -709,9 +722,9 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
 
             return (
               <div
-                className="px-2 pt-1 pb-2"
+                className="px-2 pt-1 pb-1"
               >
-                <div className="flex w-full items-center gap-1 px-3 h-7 rounded-xl transition-colors hover:bg-sidebar-accent/60">
+                <div className="flex w-full items-center gap-1 px-3 h-6 rounded-md transition-colors hover:bg-sidebar-accent/60">
                   <button
                     type="button"
                     onClick={() => setAssistantCollapsed(c => !c)}
@@ -750,7 +763,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1">
                         {aVisibleSessions.map((session) => {
                           const isActive = pathname === `/chat/${session.id}`;
                           const canSplit = !isActive && !isInSplit(session.id);
@@ -819,7 +832,7 @@ export function ChatListPanel({ open, hasUpdate, readyToInstall }: ChatListPanel
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start gap-2 h-9 px-3 rounded-xl text-[13px] ${
+            className={`w-full justify-start gap-2 h-7 px-3 rounded-md text-[13px] cursor-pointer active:!translate-y-0 ${
               pathname.startsWith("/settings")
                 ? "bg-accent text-accent-foreground font-medium"
                 : "text-sidebar-foreground font-normal"

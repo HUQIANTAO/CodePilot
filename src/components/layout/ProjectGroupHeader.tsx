@@ -198,7 +198,7 @@ export function ProjectGroupHeader({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-xl px-3 h-8 cursor-pointer select-none transition-colors",
+        "flex items-center gap-2 rounded-md px-3 h-7 cursor-pointer select-none transition-colors",
         "hover:bg-sidebar-accent"
       )}
       onClick={onToggle}
