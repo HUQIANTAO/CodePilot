@@ -39,39 +39,17 @@ import {
 } from "./chat-list-utils";
 import type { ChatSession } from "@/types";
 
-// ──────────────────────────────────────────────────────────────────────
-// Sidebar 排版标准 — 2026-06-09 v3
+// Sidebar L1/L2/L3 排版标准
 //
-// 层级  元素                              height  radius     bg(选中/hover)              备注
-// ────  ────────────────────────────────  ──────  ────────  ─────────────────────────  ─────
-// L1    顶部主操作(新对话/搜索/导航/设置)   h-7     rounded-md  bg-sidebar-accent         28px, cursor-pointer
-// L2    节标题(项目 / 助理)               h-6     rounded-md  hover:bg-sidebar-accent/60 24px, 无 active 态
-// L3    列表项(项目文件夹 / 会话 / +)     h-7     rounded-md  bg-sidebar-accent         28px 行高
+// 层级  元素                              height  radius     bg(选中/hover)
+// ────  ────────────────────────────────  ──────  ────────  ─────────────────────────
+// L1    顶部主操作(新对话/搜索/导航/设置)   h-7     rounded-md  bg-sidebar-accent
+// L2    节标题(项目 / 助理)               h-6     rounded-md  hover:bg-sidebar-accent/60
+// L3    列表项(项目文件夹 / 会话)         h-7     rounded-md  bg-sidebar-accent
 //
-// 纵向间距规则:
-//   同组 L1↔L1         : gap-0.5 (2px)  — L1 是方形操作按钮, 2px 即可
-//   同组 L3↔L3         : gap-1   (4px)  — rounded-md=6px 需 ≥3.51px; 4px 安全 + 层级清晰
-//   L2 节标题 ↔ 首 L3  : pt-1    (4px)  — 与 L3↔L3 统一
-//   项目 header ↔ 首 session: pt-1 (4px) — 同 L3↔L3 标准, 修复 v1 重叠
-//   节之间             : section wrapper 的 pt-2 / pb-1 (8 / 4px)
-//
-// 为什么 v3:
-//   - v2 h-6 + gap-1 = 28px 太紧太矮, L2 和 L3 都是 24px → 无层级差
-//   - v3 h-7 + gap-1 = 32px: L2(24) vs L3(28) 高度差 4px 建层级;
-//     L3 节拍 32px 居中 — VS Code(~22) < CodePilot(32) < ChatGPT(~40)
-//   - 旧 h-8+gap-1.5=38px → v3 h-7+gap-1=32px, -16% 仍紧凑但层级分明
-//
-// 同类产品参考:
-//   VS Code explorer: h~22px, gap~0        — IDE 极密, 缩进显层级
-//   ChatGPT sidebar:  h~36px, gap~4px      — 聊天气泡风格, 宽松
-//   Apple HIG (macOS): h~28-32px           — 系统标准行高区间
-//   Linear sidebar:   h~32px, gap~4px      — 项目列表, 与 v3 最接近
-//   Cursor chat:      h~28-32px, gap~4px   — 同品类直接对标
-//
-//   CodePilot v3 取 32px: 聊天型工具偏松、编码型工具偏紧的中间值
-//
-//   - 改尺寸必须同步改这个表; 改这个表必须同步改尺寸
-// ──────────────────────────────────────────────────────────────────────
+//   同组 L1↔L1 : gap-0.5 (2px)    同组 L3↔L3 : gap-1 (4px)
+//   L2 节标题 → 首 L3 : pt-1       项目 header → 首 session : pt-1
+//   节之间 : section wrapper pt-2 / pb-1
 
 interface ChatListPanelProps {
   open: boolean;
